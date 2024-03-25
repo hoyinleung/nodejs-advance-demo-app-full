@@ -1,8 +1,8 @@
 const { MongoClient, ObjectId } = require('mongodb');
 
-const connectionUrl = "mongodb://localhost:27017";
-const databaseName = "my_blog";
-const collectionName = "posts";
+const connectionUrl = process.env.DB_CONNECT_STRING;
+const databaseName = "mydb";
+const collectionName = "blog";
 
 // Function to establish a database connection
 async function connectToDatabase() {
@@ -10,6 +10,7 @@ async function connectToDatabase() {
   await client.connect();
   const database = client.db(databaseName);
   const collection = database.collection(collectionName);
+
   return { client, collection };
 }
 
@@ -18,24 +19,25 @@ async function createDocument(document) {
   const { client, collection } = await connectToDatabase();
   const result = await collection.insertOne(document);
   client.close();
-  return result.insertedId;
+  return result;
 }
 
 // Find a single document by ID
 async function findOneDocument(documentId) {
-    const { client, collection } = await connectToDatabase();
-    const document = await collection.findOne({ _id: ObjectId(documentId) });
-    client.close();
-    return document;
-  }
-  
-  // Find multiple documents
-  async function findManyDocuments(query) {
-    const { client, collection } = await connectToDatabase();
-    const documents = await collection.find(query).toArray();
-    client.close();
-    return documents;
-  }
+  const { client, collection } = await connectToDatabase();
+  const document = await collection.findOne({ _id: new ObjectId(documentId) });
+  //const document = await collection.findOne({ _id: documentId.toString() });
+  client.close();
+  return document;
+}
+
+// Find multiple documents
+async function findManyDocuments(query) {
+  const { client, collection } = await connectToDatabase();
+  const documents = await collection.find(query).toArray();
+  client.close();
+  return documents;
+}
 
 // Update a document
 async function updateDocument(documentId, updatedFields) {
@@ -56,10 +58,20 @@ async function deleteDocument(documentId) {
   return result.deletedCount;
 }
 
+async function fetchDataWithPagination(page, limit) {
+    const { client, collection } = await connectToDatabase();
+    const skip = (page - 1) * limit;
+    const data = await collection.find().skip(skip).limit(limit).toArray();
+    client.close();
+    return data;
+}
+
 module.exports = {
+  connectToDatabase,
   createDocument,
   findOneDocument,
   findManyDocuments,
   updateDocument,
   deleteDocument,
+  fetchDataWithPagination
 };

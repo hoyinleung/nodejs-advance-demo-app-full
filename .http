@@ -1,0 +1,16 @@
+GET http://localhost:3001/posts
+
+###
+
+GET http://localhost:3001/posts/65fb509461f1100d7b3e3c27
+
+###
+
+POST http://localhost:3001/posts
+Content-Type: application/json
+
+{
+  "title": "新文章 New Title",
+  "views": 0,
+  "content": "新文章內容"
+}

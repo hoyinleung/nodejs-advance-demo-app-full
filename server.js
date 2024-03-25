@@ -1,51 +1,70 @@
 const express = require('express');
 const app = express();
-const { MongoClient } = require('mongodb');
+const dbOp = require('./model/posts')
+const bodyParser = require('body-parser');
+console.log('🙂' + dbOp.connectToDatabase())
 
-// Create a new MongoClient
-const client = new MongoClient(process.env.DB_CONNECT_STRING, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+app.use(bodyParser.json());
+
+//Homepage
+app.get('/', (req, res) => {
+    res.send('API Homepage');
 });
 
-async function run() {
-    try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
-        // Send a ping to confirm a successful connection
-        await client.db("my_blog").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        await client.close();
-    }
-}
-run().catch(console.dir);
-//console.log('🙂' + process.env.DB_CONNECT_STRING)
-
 // Get all posts
-app.get('/posts', (req, res) => {
-    res.json(blogPosts);
+app.get('/posts', async (req, res) => {
+    try {
+        const dbRes = await dbOp.findManyDocuments({})
+        res.json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 // Get a specific post by ID
-app.get('/posts/:id', (req, res) => {
-    const postId = parseInt(req.params.id);
-    const post = posts.find(p => p.id === postId);
-
-    if (post) {
-        res.json(post);
-    } else {
-        res.status(404).json({ error: 'Post not found' });
+app.get('/posts/:id', async (req, res) => {
+    try {
+        const dbRes = await dbOp.findOneDocument(req.params.id);
+        res.json(dbRes);
+    } catch (error) {
+        // Handle any errors that occur during the asynchronous operation
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
+
+/* const pageNumber = 1; // The current page number
+const pageSize = 10; // The number of documents per page
+
+const query = {}; // Your query criteria
+
+const documents = await collection
+  .find(query)
+  .skip((pageNumber - 1) * pageSize)
+  .limit(pageSize)
+  .toArray();
+
+console.log(documents); */
+
 // Create a new post
-app.post('/posts', (req, res) => {
-    const { title, content } = req.body;
-    const newPost = { id: posts.length + 1, title, content };
-    posts.push(newPost);
-    res.status(201).json(newPost);
+app.post('/posts', async (req, res) => {
+
+    const newPost = {
+        "title": req.body.title,
+        "views": req.body.views,
+        "content": req.body.content
+    }
+
+    try {
+        const dbRes = await dbOp.createDocument(newPost);
+        res.status(201).json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+
 });
 
 // Update a post by ID
@@ -92,6 +111,6 @@ app.delete('/posts/:id', (req, res) => {
 });
 
 // Start the server and listen on port 3000
-app.listen(3000, () => {
-    console.log('Server listening on port 3000!');
+app.listen(3001, () => {
+    console.log('Server listening on port 3001!');
 });
