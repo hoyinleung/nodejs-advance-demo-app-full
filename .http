@@ -14,3 +14,14 @@ Content-Type: application/json
   "views": 0,
   "content": "新文章內容"
 }
+
+###
+
+PUT http://localhost:3001/posts/6601b9c613f02345e5d8b7f0
+Content-Type: application/json
+
+{
+  "title": "新文章2 New Title",
+  "views": 20,
+  "content": "2新文章內容"
+}

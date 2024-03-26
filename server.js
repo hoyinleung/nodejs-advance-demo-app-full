@@ -68,18 +68,22 @@ app.post('/posts', async (req, res) => {
 });
 
 // Update a post by ID
-app.put('/posts/:id', (req, res) => {
-    const postId = parseInt(req.params.id);
-    const { title, content } = req.body;
-    const post = posts.find(p => p.id === postId);
-
-    if (post) {
-        post.title = title;
-        post.content = content;
-        res.json(post);
-    } else {
-        res.status(404).json({ error: 'Post not found' });
-    }
+app.put('/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, views, content } = req.body;
+    
+        // Update the entire document
+        const dbRes = await dbOp.updateDocument(id, {
+            title : title,
+            views : views,
+            content:content
+        });
+        res.json(dbRes);
+      } 
+      catch (error) {
+        res.status(400).json({ message: error.message });
+      }
 });
 
 // Update a post partially by ID

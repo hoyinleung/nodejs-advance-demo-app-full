@@ -43,11 +43,11 @@ async function findManyDocuments(query) {
 async function updateDocument(documentId, updatedFields) {
   const { client, collection } = await connectToDatabase();
   const result = await collection.updateOne(
-    { _id: ObjectId(documentId) },
+    { _id: new ObjectId(documentId) },
     { $set: updatedFields }
   );
   client.close();
-  return result.modifiedCount;
+  return result;
 }
 
 // Delete a document
