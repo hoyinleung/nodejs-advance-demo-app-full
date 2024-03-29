@@ -67,50 +67,52 @@ app.post('/posts', async (req, res) => {
 
 });
 
-// Update a post by ID
+// 對特定ID的document進行全部資料更新
 app.put('/posts/:id', async (req, res) => {
+
+    function hasAllRequiredFields(reqBody) {
+        const requiredFields = ['title', 'content', 'views'];
+        // Check if all required fields exist and have truthy values
+        return requiredFields.every(field => reqBody.hasOwnProperty(field));
+      }
+    
+    if (!hasAllRequiredFields(req.body)) {
+        return res.status(400).json({ message: '沒有提交必要欄位資料: title, content, or views' });
+    }
+
     try {
         const { id } = req.params;
-        const { title, views, content } = req.body;
-    
+
         // Update the entire document
-        const dbRes = await dbOp.updateDocument(id, {
-            title : title,
-            views : views,
-            content:content
-        });
+        const dbRes = await dbOp.updateDocument(id, req.body);
         res.json(dbRes);
-      } 
-      catch (error) {
+    }
+    catch (error) {
         res.status(400).json({ message: error.message });
-      }
+    }
 });
 
-// Update a post partially by ID
-app.patch('/posts/:id', (req, res) => {
-    const postId = parseInt(req.params.id);
-    const { title, content } = req.body;
-    const post = posts.find(p => p.id === postId);
+// 對特定ID的document更新部份資料
+app.patch('/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
 
-    if (post) {
-        if (title) post.title = title;
-        if (content) post.content = content;
-        res.json(post);
-    } else {
-        res.status(404).json({ error: 'Post not found' });
+        const dbRes = await dbOp.updateDocument(id, req.body);
+        res.json(dbRes);
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
     }
 });
 
 // Delete a post by ID
-app.delete('/posts/:id', (req, res) => {
-    const postId = parseInt(req.params.id);
-    const postIndex = posts.findIndex(p => p.id === postId);
-
-    if (postIndex !== -1) {
-        const deletedPost = posts.splice(postIndex, 1);
-        res.json(deletedPost[0]);
-    } else {
-        res.status(404).json({ error: 'Post not found' });
+app.delete('/posts/:id',async (req, res) => {
+    try {
+        const dbRes = await dbOp.deleteDocument(req.params.id)
+        res.json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

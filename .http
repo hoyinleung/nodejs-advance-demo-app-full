@@ -10,9 +10,9 @@ POST http://localhost:3001/posts
 Content-Type: application/json
 
 {
-  "title": "新文章 New Title",
-  "views": 0,
-  "content": "新文章內容"
+  "title": "新文章33 New Title",
+  "views": 33,
+  "content": "33新文章內容"
 }
 
 ###
@@ -21,7 +21,21 @@ PUT http://localhost:3001/posts/6601b9c613f02345e5d8b7f0
 Content-Type: application/json
 
 {
-  "title": "新文章2 New Title",
-  "views": 20,
-  "content": "2新文章內容"
+  "title": "新文章777 New Title",
+  "views": 777,
+  "content": "777新文章內容"
 }
+
+### 
+
+PATCH http://localhost:3001/posts/6601b9c613f02345e5d8b7f0
+Content-Type: application/json
+
+{
+  "views": 4567
+}
+
+###
+
+DELETE http://localhost:3001/posts/6606e00031854ba0e6bb7e6b
+
