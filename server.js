@@ -34,6 +34,17 @@ app.get('/posts/:id', async (req, res) => {
     }
 });
 
+// Search by Keyword
+app.get('/search/:keyword', async (req, res) => {
+    try {
+        const dbRes = await dbOp.searchDocumentByKeyword(req.params.keyword)
+        res.json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 /* const pageNumber = 1; // The current page number
 const pageSize = 10; // The number of documents per page

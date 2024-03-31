@@ -26,7 +26,15 @@ async function createDocument(document) {
 async function findOneDocument(documentId) {
   const { client, collection } = await connectToDatabase();
   const document = await collection.findOne({ _id: new ObjectId(documentId) });
-  //const document = await collection.findOne({ _id: documentId.toString() });
+  client.close();
+  return document;
+}
+
+// Find a single document by ID
+async function searchDocumentByKeyword(keyword) {
+  console.log('⭐',keyword)
+  const { client, collection } = await connectToDatabase();
+  const document = await collection.find({content: {$regex:keyword}}).toArray();
   client.close();
   return document;
 }
@@ -73,5 +81,6 @@ module.exports = {
   findManyDocuments,
   updateDocument,
   deleteDocument,
-  fetchDataWithPagination
+  fetchDataWithPagination,
+  searchDocumentByKeyword
 };

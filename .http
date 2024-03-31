@@ -6,6 +6,10 @@ GET http://localhost:3001/posts/65fb509461f1100d7b3e3c27
 
 ###
 
+GET http://localhost:3001/search/心
+
+###
+
 POST http://localhost:3001/posts
 Content-Type: application/json
 
@@ -39,3 +43,12 @@ Content-Type: application/json
 
 DELETE http://localhost:3001/posts/6606e00031854ba0e6bb7e6b
 
+###
+
+POST http://localhost:11434/api/generate
+Content-Type: application/json
+
+{
+  "model": "mistral",
+  "prompt":"Here is a story about llamas eating grass"
+}
