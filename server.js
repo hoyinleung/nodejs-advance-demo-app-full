@@ -22,6 +22,17 @@ app.get('/posts', async (req, res) => {
     }
 });
 
+// Get all hot posts
+app.get('/posts/hot', async (req, res) => {
+    try {
+        const dbRes = await dbOp.getHotPosts(20000)
+        res.json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Get a specific post by ID
 app.get('/posts/:id', async (req, res) => {
     try {
@@ -35,9 +46,9 @@ app.get('/posts/:id', async (req, res) => {
 });
 
 // Search by Keyword
-app.get('/search/:keyword', async (req, res) => {
+app.get('/search', async (req, res) => {
     try {
-        const dbRes = await dbOp.searchDocumentByKeyword(req.params.keyword)
+        const dbRes = await dbOp.searchDocumentByKeyword(req.query.keyword)
         res.json(dbRes);
     } catch (error) {
         console.error(error);
