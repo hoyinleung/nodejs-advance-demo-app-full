@@ -32,9 +32,12 @@ async function findOneDocument(documentId) {
 
 // Find a single document by ID
 async function searchDocumentByKeyword(keyword) {
-  console.log('⭐',keyword)
   const { client, collection } = await connectToDatabase();
-  const document = await collection.find({content: {$regex:keyword}}).toArray();
+  //const document = await collection.find({content: {$regex:keyword}}).toArray();
+  const document = await collection.find({$or: [
+    { title: { $regex: new RegExp(keyword, 'i') }},
+    { content: { $regex: new RegExp(keyword, 'i') }} //i : case-insensitive
+  ]}).toArray();
   client.close();
   return document;
 }
@@ -43,6 +46,14 @@ async function searchDocumentByKeyword(keyword) {
 async function findManyDocuments(query) {
   const { client, collection } = await connectToDatabase();
   const documents = await collection.find(query).toArray();
+  client.close();
+  return documents;
+}
+
+// Find hot documents
+async function getHotPosts(viewCount) {
+  const { client, collection } = await connectToDatabase();
+  const documents = await collection.find({ views: { $gt: viewCount } }).toArray();
   client.close();
   return documents;
 }
@@ -82,5 +93,6 @@ module.exports = {
   updateDocument,
   deleteDocument,
   fetchDataWithPagination,
-  searchDocumentByKeyword
+  searchDocumentByKeyword,
+  getHotPosts
 };
