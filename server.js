@@ -25,7 +25,7 @@ app.get('/posts', async (req, res) => {
 // Get all hot posts
 app.get('/posts/hot', async (req, res) => {
     try {
-        const dbRes = await dbOp.getHotPosts(20000)
+        const dbRes = await dbOp.getHotPosts(15000)
         res.json(dbRes);
     } catch (error) {
         console.error(error);

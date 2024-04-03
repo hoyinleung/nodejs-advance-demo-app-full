@@ -30,7 +30,7 @@ async function findOneDocument(documentId) {
   return document;
 }
 
-// Find a single document by ID
+// 搜尋文章
 async function searchDocumentByKeyword(keyword) {
   const { client, collection } = await connectToDatabase();
   //const document = await collection.find({content: {$regex:keyword}}).toArray();
