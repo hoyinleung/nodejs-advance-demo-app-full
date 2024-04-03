@@ -9,7 +9,7 @@ GET http://localhost:3001/posts/65fb509461f1100d7b3e3c27
 
 ###
 
-GET http://localhost:3001/search?keyword=ABC
+GET http://localhost:3001/search?keyword=新@?文章$%
 
 ###
 GET http://localhost:3001/posts/hot
