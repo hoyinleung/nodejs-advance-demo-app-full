@@ -14,8 +14,28 @@ app.get('/', (req, res) => {
 // Get all posts
 app.get('/posts', async (req, res) => {
     try {
-        const dbRes = await dbOp.findManyDocuments({})
+        if (req.query.page) {
+            const resultPerPage = 5
+            const dbRes = await dbOp.findManyDocumentsWithPagination({}, parseInt(req.query.page), resultPerPage)
+            res.json(dbRes);
+        }
+        else {
+            const dbRes = await dbOp.findManyDocuments({})
+            res.json(dbRes);
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Get post with pagination
+app.get('/postsWithPage', async (req, res) => {
+    try {
+        const dbRes = await dbOp.findManyDocumentsWithPagination({})
         res.json(dbRes);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -96,8 +116,8 @@ app.put('/posts/:id', async (req, res) => {
         const requiredFields = ['title', 'content', 'views'];
         // Check if all required fields exist and have truthy values
         return requiredFields.every(field => reqBody.hasOwnProperty(field));
-      }
-    
+    }
+
     if (!hasAllRequiredFields(req.body)) {
         return res.status(400).json({ message: '沒有提交必要欄位資料: title, content, or views' });
     }
@@ -128,7 +148,7 @@ app.patch('/posts/:id', async (req, res) => {
 });
 
 // Delete a post by ID
-app.delete('/posts/:id',async (req, res) => {
+app.delete('/posts/:id', async (req, res) => {
     try {
         const dbRes = await dbOp.deleteDocument(req.params.id)
         res.json(dbRes);

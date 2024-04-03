@@ -50,6 +50,25 @@ async function findManyDocuments(query) {
   return documents;
 }
 
+// Find multiple documents with Pagination
+async function findManyDocumentsWithPagination(query,page,limit) {
+  const { client, collection } = await connectToDatabase();
+
+  // Calculate skip based on page and limit
+  const skip = (page - 1) * limit;
+
+  // Find documents with filter, skip, and limit
+  const data = await collection.find(query).skip(skip).limit(limit).toArray();
+
+  // Get total document count (optional)
+  const totalResult = await collection.countDocuments(query);
+  
+  client.close();
+
+  // Return paginated data and total count (optional)
+  return {data,page,totalResult};
+}
+
 // Find hot documents
 async function getHotPosts(viewCount) {
   const { client, collection } = await connectToDatabase();
@@ -94,5 +113,6 @@ module.exports = {
   deleteDocument,
   fetchDataWithPagination,
   searchDocumentByKeyword,
-  getHotPosts
+  getHotPosts,
+  findManyDocumentsWithPagination
 };
