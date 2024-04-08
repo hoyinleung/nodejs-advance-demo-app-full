@@ -1,15 +1,19 @@
 GET http://localhost:3001/posts
 
 ###
-GET http://localhost:3001/posts?page=1
+GET http://localhost:3001/posts?page=1&limit=3
 
 ###
 
 GET http://localhost:3001/posts/65fb509461f1100d7b3e3c27
 
-###
+### 正常search
 
-GET http://localhost:3001/search?keyword=新@?文章$%
+GET http://localhost:3001/search?keyword=心|靈
+
+### NoSQL injection
+
+GET http://localhost:3001/search?keyword={a: 'a'} || 1 == 1
 
 ###
 GET http://localhost:3001/posts/hot
@@ -58,4 +62,12 @@ Content-Type: application/json
 {
   "model": "mistral",
   "prompt":"Here is a story about llamas eating grass"
+}
+
+### Test mongo sanitizer
+POST http://localhost:3000/user?keyword={a: 'a'} || 1 == 1
+Content-Type: application/json
+
+{
+  "user": "abc$"
 }

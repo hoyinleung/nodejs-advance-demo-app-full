@@ -31,15 +31,9 @@ async function findOneDocument(documentId) {
 }
 
 function sanitizeKeywordForEnglishChinese(keyword) {
-  // Regular expression for combining English letters (a-z and A-Z), digits (0-9),
-  // and Chinese characters ([\u4e00-\u9fff])
-  const englishChineseRegex = /[\w\d\u4e00-\u9fff]/g;
+  const nosqlInjectionRegex = /[\\$<>{}.*!&|:+]/g;
 
-  // Replace all characters that don't match the regex with an empty string
-  const sanitizedKeyword = keyword.replace(
-    /[^\w\d\u4e00-\u9fff]/g,
-    ""
-  );
+  const sanitizedKeyword = keyword.replace(nosqlInjectionRegex, "");
 
   return sanitizedKeyword;
 }
@@ -47,15 +41,19 @@ function sanitizeKeywordForEnglishChinese(keyword) {
 // 搜尋文章
 async function searchDocumentByKeyword(keyword) {
   const { client, collection } = await connectToDatabase();
-  //const document = await collection.find({content: {$regex:keyword}}).toArray();
+  
   const sanitizedKeyword = sanitizeKeywordForEnglishChinese(keyword)
-  console.log('User打入:',keyword,'sanitizedKeyword : ',sanitizedKeyword)
 
+  console.log('🙂User打入:',keyword,'\n✅SanitizedKeyword : ',sanitizedKeyword)
+
+  const document = await collection.find({content: {$regex:sanitizedKeyword}}).toArray();
+  //const document = await collection.find({content: {$regex:keyword}}).toArray();
+/*
   const document = await collection.find({$or: [
     { title: { $regex: new RegExp(sanitizedKeyword, 'i') }},
     { content: { $regex: new RegExp(sanitizedKeyword, 'i') }} //i : case-insensitive
-  ]}).toArray();
-  client.close();
+  ]}).toArray();*/
+  client.close(); 
   return document;
 }
 

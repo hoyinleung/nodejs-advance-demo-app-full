@@ -1,0 +1,19 @@
+<%- include('header.ejs') %> 
+    <h1>搜尋頁</h1>
+
+    <form action="/search" method="GET">
+        關鍵字搜尋<input type="text" id="keyword" name="keyword"><br/>
+        <input type="submit" value="搜尋">
+    </form>
+
+     <% if(data !=='N/A' && data.length >0) { %>
+        <h1>共<%=data.length%>個結果</h1>
+        <% data.forEach(article => { %>
+            <h3><a href="/post/<%=article._id%>" target="_blank"><%=article.title%></a> (瀏覽次數 : <%=article.views%>)</h3>
+        <% }) %>
+    <% } %>
+
+    <% if(data.length===0) { %>
+        <p>沒有找到任何文章 (No results found)</p>
+    <% } %>
+<%- include('footer.ejs') %> 
