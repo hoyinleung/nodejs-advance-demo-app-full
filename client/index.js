@@ -3,7 +3,7 @@ const app = express()
 
 const urlFetch = async (url) => {
     const res = await fetch(url);
-    if(res.ok){
+    if (res.ok) {
         const data = await res.json();
         return data
     }
@@ -37,11 +37,10 @@ app.get('/search', async (req, res) => {
         })
     } else {
         res.render('search', {
-        title: '搜尋結果',
-        data: 'N/A'
-    })
+            title: '搜尋結果',
+            data: 'N/A'
+        })
     }
-
 
 })
 

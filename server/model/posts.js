@@ -30,21 +30,16 @@ async function findOneDocument(documentId) {
   return document;
 }
 
-function sanitizeKeywordForEnglishChinese(keyword) {
-  const nosqlInjectionRegex = /[\\$<>{}.*!&|:+]/g;
-
-  const sanitizedKeyword = keyword.replace(nosqlInjectionRegex, "");
-
-  return sanitizedKeyword;
-}
+const sanitizeUserInput = (keyword) => keyword.replace(/[\\$<>{}.*!&|:+]/g, "")
 
 // 搜尋文章
 async function searchDocumentByKeyword(keyword) {
   const { client, collection } = await connectToDatabase();
   
-  const sanitizedKeyword = sanitizeKeywordForEnglishChinese(keyword)
+  const sanitizedKeyword = sanitizeUserInput(keyword)
 
-  console.log('🙂User打入:',keyword,'\n✅SanitizedKeyword : ',sanitizedKeyword)
+  console.log('🙂 用戶輸入 : ',keyword,' ✅ SanitizedKeyword : ',sanitizedKeyword)
+  console.log('原來Query : ',{content: {$regex:keyword}},' ✅ Sanitized query  : ',{content: {$regex:sanitizedKeyword}})
 
   const document = await collection.find({content: {$regex:sanitizedKeyword}}).toArray();
   //const document = await collection.find({content: {$regex:keyword}}).toArray();
