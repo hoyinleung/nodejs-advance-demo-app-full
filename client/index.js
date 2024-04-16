@@ -18,7 +18,7 @@ app.set('views', 'views')
 app.get('/', async (req, res) => {
 
     // Get all blog post from mongodb
-    const allPosts = await urlFetch(`http://localhost:3001/posts`);
+    const allPosts = await urlFetch(`${process.env.API_URL}posts`);
 
     res.render('index', {
         courseName: 'NodeJS進階課程',
@@ -32,6 +32,22 @@ app.get('/create', async (req, res) => {
         title: '加入文章'
     })
 })
+app.post('/create', async (req, res) => {
+
+    const response = await fetch(`${process.env.API_URL}posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Error creating post');
+    }
+
+    const newPost = await response.json();
+    console.log('Post created:', newPost);
+
+})
 app.get('/edit/:id', async (req, res) => {
 
     // Check if id exists
@@ -40,9 +56,9 @@ app.get('/edit/:id', async (req, res) => {
         // Handle the case where id is missing (e.g., send a 400 Bad Request error)
         return res.status(400).send('Error: ID parameter is required.');
     }
-    
+
     //依ID讀取特定文章資料
-    const postData = await urlFetch(`http://localhost:3001/posts/${id}`);
+    const postData = await urlFetch(`${process.env.API_URL}posts/${id}`);
 
     res.render('edit', {
         title: '更改文章 #',
@@ -63,7 +79,7 @@ app.get('/logout', async (req, res) => {
 app.get('/search', async (req, res) => {
 
     if (req.query.keyword) {
-        const searchResult = await urlFetch(`http://localhost:3001/search?keyword=${req.query.keyword}`);
+        const searchResult = await urlFetch(`${process.env.API_URL}search?keyword=${req.query.keyword}`);
         //console.log(searchResult)
 
         res.render('search', {
