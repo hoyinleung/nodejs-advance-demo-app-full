@@ -1,8 +1,15 @@
 <%- include('header.ejs') %> 
 <h1>更改文章</h1>
 <form action="" method="POST">
-    標題<input type="text" id="title" name="title" value="<%=post.title%>"><br/>
-    內容<textarea type="text" id="content" name="content"><%=post.content%></textarea><br/>
+    <label for="title">文章 #ID</label>
+    <input type="text" value="<%=post._id%>" disabled />
+
+    <label for="title">標題</label>
+    <input type="text" id="title" name="title" value="<%=post.title%>"/>
+    
+    <label for="title">文章內容</label>
+    <textarea type="text" id="content" name="content"><%=post.content%></textarea>
+
     <input type="submit" value="確認更改">
 </form>
 

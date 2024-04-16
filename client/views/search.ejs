@@ -1,8 +1,9 @@
 <%- include('header.ejs') %> 
-    <h1>搜尋頁</h1>
+    <h1>文章搜尋頁</h1>
 
     <form action="/search" method="GET">
-        關鍵字搜尋<input type="text" id="keyword" name="keyword">
+        <label for="keyword">關鍵字搜尋</label>
+        <input type="text" id="keyword" name="keyword">
         <input type="submit" value="搜尋">
     </form>
 

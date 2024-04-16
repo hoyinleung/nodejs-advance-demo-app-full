@@ -13,3 +13,16 @@ a:visited{
 .postTable{
     line-height: 2;
 }
+input{
+    width:300px;
+    margin: 10px 0;
+    display: block;
+}
+textarea{
+    width:300px;
+    height: 70px;
+    display: block;
+}
+label{
+    display: block;
+}
