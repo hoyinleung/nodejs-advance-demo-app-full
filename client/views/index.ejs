@@ -1,0 +1,21 @@
+<%- include('header.ejs') %> 
+    <h1>首頁</h1>
+    
+     <% if(blogs.length) { %>
+        <h2>全部文章 - 共<%=blogs.length%>篇</h2>
+        <% blogs.forEach(article => { %>
+            <div class="postTable">
+                <span><a href="/edit/<%=article._id%>">✏️更改</a></span> | 
+                <span><a href="/delete/<%=article._id%>">❌刪除</a></span> | 
+                <span><a href="/post/<%=article._id%>" target="_blank"><%=article.title%></a>
+                </span> (瀏覽次 : <%=article.views%>)
+            </div>
+        <% }) %>
+    <% } %>
+
+    <% if(!blogs.length) { %>
+        <h2>資料庫內暫時沒有文章</h2>
+    <% } %>
+
+    
+<%- include('footer.ejs') %> 

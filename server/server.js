@@ -166,5 +166,5 @@ app.delete('/posts/:id', async (req, res) => {
 
 // Start the server and listen on port 3000
 app.listen(3001, () => {
-    console.log('Server listening on port 3001!');
+    console.log('Rest API後端正在3001號port運行中...');
 });
