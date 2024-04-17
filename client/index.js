@@ -26,27 +26,46 @@ app.get('/', async (req, res) => {
         blogs: allPosts
     })
 })
+//display one article
+app.get('/post/:id', async (req, res) => {
+
+    // Get all blog post from mongodb
+    const postDetail = await urlFetch(`${process.env.API_URL}posts/${req.params.id}`);
+
+    res.render('postDetail', {
+        title: postDetail.title,
+        post: postDetail
+    })
+})
 app.get('/create', async (req, res) => {
     res.render('create', {
-        courseName: 'NodeJS進階課程',
         title: '加入文章'
     })
 })
 app.post('/create', async (req, res) => {
 
-    const response = await fetch(`${process.env.API_URL}posts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content }),
-    });
+    const { title, content } = req.body;
 
-    if (!response.ok) {
-        throw new Error('Error creating post');
+    try {
+        const response = await fetch(`${process.env.API_URL}posts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+                {
+                    title: title,
+                    content: content,
+                    views: 0,
+                }
+            )
+        });
+
+        const newPost = await response.json();
+        //res.status(201).json(newPost);
+        res.redirect(`/post/${newPost.insertedId}`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    const newPost = await response.json();
-    console.log('Post created:', newPost);
-
 })
 app.get('/edit/:id', async (req, res) => {
 
