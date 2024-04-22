@@ -71,3 +71,13 @@ Content-Type: application/json
 {
   "user": "abc$"
 }
+
+###
+
+POST http://localhost:3001/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "12345"
+}

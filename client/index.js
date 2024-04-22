@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const bcrypt = require('bcrypt');
 
 const urlFetch = async (url) => {
     const res = await fetch(url);
@@ -84,10 +85,36 @@ app.get('/edit/:id', async (req, res) => {
         post: postData
     })
 })
+app.get('/register', async (req, res) => {
+    res.render('register', {
+        title: '註冊'
+    })
+})
+app.post('/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        /* 
+        //Salt <- 可自行搜尋
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt); */
+
+        try {
+            const user = await User.create({ username, password: hashedPassword });
+            res.status(201).json({ message: 'User Created', user });
+        } catch (error) {
+            res.status(500).json({ message: 'Internal server error' })
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+});
 app.get('/login', async (req, res) => {
     res.render('login', {
-        courseName: 'NodeJS進階課程',
-        title: '登入',
+        title: '登入'
     })
 })
 app.get('/logout', async (req, res) => {
