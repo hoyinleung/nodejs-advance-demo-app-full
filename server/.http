@@ -78,6 +78,6 @@ POST http://localhost:3001/register
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "12345"
+  "username": "admin3",
+  "password": "123456"
 }

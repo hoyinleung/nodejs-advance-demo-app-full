@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors')
 const dbOp = require('./model/posts')
+const userOp = require('./model/users')
 const bodyParser = require('body-parser');
+const genHashPassword = require('./helpers/password')
 //console.log('🙂' + dbOp.connectToDatabase())
 
 app.use(bodyParser.json());
@@ -162,6 +164,25 @@ app.delete('/posts/:id', async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+});
+
+// Create a new post
+app.post('/register', async (req, res) => {
+
+    const newUser = {
+        "username": req.body.username,
+        "password": await genHashPassword(req.body.password)
+    }
+    console.log("🚀 ~ app.post ~ newUser:", newUser)
+
+    try {
+        const dbRes = await userOp.createDocument(newUser);
+        res.status(201).json(dbRes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+
 });
 
 // Start the server and listen on port 3000
