@@ -6,5 +6,8 @@ async function genHashPassword(password) {
     console.log("hashedPassword | ", hashedPassword)
     return hashedPassword
 }
+async function comparePassword(UserEnterPassword,dbPassword){
+    return await bcrypt.compare(UserEnterPassword,dbPassword);
+}
 
-module.exports = genHashPassword;
+module.exports = {genHashPassword,comparePassword};

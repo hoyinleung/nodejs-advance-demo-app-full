@@ -4,7 +4,7 @@ const cors = require('cors')
 const dbOp = require('./model/posts')
 const userOp = require('./model/users')
 const bodyParser = require('body-parser');
-const genHashPassword = require('./helpers/password')
+const {genHashPassword,comparePassword} = require('./helpers/password')
 //console.log('🙂' + dbOp.connectToDatabase())
 
 app.use(bodyParser.json());
@@ -184,6 +184,30 @@ app.post('/register', async (req, res) => {
     }
 
 });
+
+//Check user name and password is correct
+app.post('/authenticate', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      const user = await userOp.findUserByUsername(username);
+  
+      if(!user) {
+        return res.status(401).json( { message: 'Invalid credentials' } );
+      }
+  
+      const isPasswordValid = await comparePassword(password, user.password);
+  
+      if(!isPasswordValid) {
+        return res.status(401).json( { message: 'Invalid credentials' } );
+      }
+
+      res.json({ isValidUser: true });
+  
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
 // Start the server and listen on port 3000
 app.listen(3001, () => {

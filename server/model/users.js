@@ -30,6 +30,14 @@ async function findOneDocument(documentId) {
   return document;
 }
 
+// Find a single document by ID
+async function findUserByUsername(username) {
+  const { client, collection } = await connectToDatabase();
+  const document = await collection.findOne({ username: username });
+  client.close();
+  return document;
+}
+
 const sanitizeUserInput = (keyword) => keyword.replace(/[\\$<>{}.*!&|:+]/g, "")
 
 // 搜尋文章
@@ -111,6 +119,7 @@ module.exports = {
   createDocument,
   findOneDocument,
   findManyDocuments,
+  findUserByUsername,
   updateDocument,
   deleteDocument,
   fetchDataWithPagination,
