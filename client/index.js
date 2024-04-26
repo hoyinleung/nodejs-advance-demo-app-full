@@ -117,6 +117,9 @@ app.get('/login', async (req, res) => {
         title: '登入'
     })
 })
+app.post('/login', async (req, res) => {
+    
+})
 app.get('/logout', async (req, res) => {
     res.send('logout page')
     //登出要做的事
