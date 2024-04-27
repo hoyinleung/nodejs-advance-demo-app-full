@@ -43,7 +43,7 @@ Content-Type: application/json
 
 ### 
 
-PATCH http://localhost:3001/posts/6601b9c613f02345e5d8b7f0
+PATCH http://localhost:3001/posts/662cca6aa724a6a4fae9e50e
 Content-Type: application/json
 
 {

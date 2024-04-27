@@ -5,9 +5,9 @@
         <h2>全部文章 - 共<%=blogs.length%>篇</h2>
         <% blogs.forEach(article => { %>
             <div class="postTable">
-                <span><a href="/edit/<%=article._id%>">✏️更改</a></span> | 
-                <span><a href="/delete/<%=article._id%>">❌刪除</a></span> | 
-                <span><a href="/post/<%=article._id%>" target="_blank"><%=article.title%></a>
+                <span><a href="/post/edit/<%=article._id%>">✏️更改</a></span> | 
+                <span><a href="/post/delete/<%=article._id%>">❌刪除</a></span> | 
+                <span><a href="/post/view/<%=article._id%>" target="_blank"><%=article.title%></a>
                 </span> (瀏覽數 <%=article.views%>)
             </div>
         <% }) %>

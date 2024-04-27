@@ -4,21 +4,19 @@ const cors = require('cors')
 const dbOp = require('./model/posts')
 const userOp = require('./model/users')
 const bodyParser = require('body-parser');
-const {genHashPassword,comparePassword} = require('./helpers/password')
+const { genHashPassword, comparePassword } = require('./helpers/password')
 //console.log('🙂' + dbOp.connectToDatabase())
 
 app.use(bodyParser.json());
 
 let corsOptions = {
     origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    methods: ['GET', 'POST','OPTIONS', 'PUT', 'DELETE','PATCH']
+    //allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header'], 
+    //credentials: true 
 }
 app.use(cors(corsOptions))
-
-//Homepage
-app.get('/', (req, res) => {
-    res.send('API Homepage');
-});
 
 // Get all posts
 app.get('/posts', async (req, res) => {
@@ -188,26 +186,31 @@ app.post('/register', async (req, res) => {
 //Check user name and password is correct
 app.post('/authenticate', async (req, res) => {
     try {
-      const { username, password } = req.body;
-      
-      const user = await userOp.findUserByUsername(username);
-  
-      if(!user) {
-        return res.status(401).json( { message: 'Invalid credentials' } );
-      }
-  
-      const isPasswordValid = await comparePassword(password, user.password);
-  
-      if(!isPasswordValid) {
-        return res.status(401).json( { message: 'Invalid credentials' } );
-      }
+        const { username, password } = req.body;
 
-      res.json({ isValidUser: true });
-  
+        const user = await userOp.findUserByUsername(username);
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const isPasswordValid = await comparePassword(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        res.json({ isValidUser: true });
+
     } catch (error) {
-      console.log(error);
+        console.log(error);
     }
-  });
+});
+
+//Homepage
+app.get('/', (req, res) => {
+    res.send('API Homepage');
+});
 
 // Start the server and listen on port 3000
 app.listen(3001, () => {

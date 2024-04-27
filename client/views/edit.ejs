@@ -1,16 +1,60 @@
-<%- include('header.ejs') %> 
-<h1>更改文章</h1>
-<form action="" method="POST">
-    <label for="title">文章 #ID</label>
-    <input type="text" value="<%=post._id%>" disabled />
+<%- include('header.ejs') %>
+    <h1>更改文章</h1>
+    <form action="" method="POST">
+        <label for="title">文章 #ID</label>
+        <input type="text" id="postId" name="id" value="<%=post._id%>" disabled />
 
-    <label for="title">標題</label>
-    <input type="text" id="title" name="title" value="<%=post.title%>"/>
-    
-    <label for="title">文章內容</label>
-    <textarea type="text" id="content" name="content"><%=post.content%></textarea>
+        <label for="title">標題</label>
+        <input type="text" id="title" name="title" value="<%=post.title%>" />
 
-    <input type="submit" value="確認更改">
-</form>
+        <label for="title">文章內容</label>
+        <textarea type="text" id="content" name="content"><%=post.content%></textarea>
 
-<%- include('footer.ejs') %> 
+        <input style="width: 300px;" type="submit" value="經3000 server再請求Rest API更新資料">
+    </form>
+
+    <button onclick="updateData()" style="width: 300px;">
+        直接請求3001 Rest API 更新資料
+    </button>
+    <script>
+        let postId = document.querySelector('#postId').value
+
+        async function updateData() {
+
+            let data = {
+                title: document.querySelector('#title').value,
+                content: document.querySelector('#content').value
+            }
+
+            try {
+                const response = await fetch(
+                    `http://localhost:3001/posts/${postId}`
+                    , {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                if (!response.ok) {
+                    throw new Error(`Error updating data: ${response.status}`);
+                }
+
+                const updatedData = await response.json();
+                console.log('Successfully updated data:', updatedData);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Sample JSON data
+        /* const updateInfo = {
+            title: 'New Title',
+            content: 'Updated Content'
+        };
+        
+        updateData(`http://localhost:3001/posts/${postId}`, updateInfo); */
+    </script>
+
+    <%- include('footer.ejs') %>

@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const bcrypt = require('bcrypt');
+const axios = require('axios');
 
 const urlFetch = async (url) => {
     const res = await fetch(url);
@@ -19,56 +19,54 @@ app.set('views', 'views')
 app.get('/', async (req, res) => {
 
     // Get all blog post from mongodb
-    const allPosts = await urlFetch(`${process.env.API_URL}posts`);
+    const allPosts = await axios.get(`${process.env.API_URL}posts`);
 
     res.render('index', {
         courseName: 'NodeJS進階課程',
         title: '首頁',
-        blogs: allPosts
+        blogs: allPosts.data
     })
 })
-//display one article
-app.get('/post/:id', async (req, res) => {
 
-    // Get all blog post from mongodb
-    const postDetail = await urlFetch(`${process.env.API_URL}posts/${req.params.id}`);
+//display one article
+app.get('/post/view/:id', async (req, res) => {
+
+    const postDetail = await axios.get(`${process.env.API_URL}posts/${req.params.id}`);
 
     res.render('postDetail', {
-        title: postDetail.title,
-        post: postDetail
+        title: postDetail.data.title,
+        post: postDetail.data
     })
 })
-app.get('/create', async (req, res) => {
+
+app.get('/post/create', async (req, res) => {
     res.render('create', {
         title: '加入文章'
     })
 })
-app.post('/create', async (req, res) => {
+
+app.post('/post/create', async (req, res) => {
 
     const { title, content } = req.body;
 
     try {
-        const response = await fetch(`${process.env.API_URL}posts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-                {
-                    title: title,
-                    content: content,
-                    views: 0,
-                }
-            )
-        });
+        const response = await axios.post(
+            `${process.env.API_URL}posts`,
+            {
+                title: title,
+                content: content,
+                views: 0,
+            }
+        )
 
-        const newPost = await response.json();
-        //res.status(201).json(newPost);
-        res.redirect(`/post/${newPost.insertedId}`);
+        res.redirect(`/post/view/${response.data.insertedId}`);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
-app.get('/edit/:id', async (req, res) => {
+
+app.get('/post/edit/:id', async (req, res) => {
 
     // Check if id exists
     const id = req.params.id
@@ -78,12 +76,37 @@ app.get('/edit/:id', async (req, res) => {
     }
 
     //依ID讀取特定文章資料
-    const postData = await urlFetch(`${process.env.API_URL}posts/${id}`);
+    //const postData = await urlFetch(`${process.env.API_URL}posts/${id}`);
+    const postData = await axios.get(`${process.env.API_URL}posts/${id}`);
 
     res.render('edit', {
         title: '更改文章 #',
-        post: postData
+        post: postData.data
     })
+})
+app.post('/post/edit/:id', async (req, res) => {
+
+    // Check if id exists
+    const id = req.params.id
+    if (!id) {
+        // Handle the case where id is missing (e.g., send a 400 Bad Request error)
+        return res.status(400).send('Error: ID parameter is required.');
+    }
+
+    //User's form data
+    const { title, content } = req.body;
+
+    //依ID讀取特定文章資料
+    const response = await axios.patch(
+        `${process.env.API_URL}posts/${id}`,
+        {
+            title: title,
+            content: content,
+        }
+    )
+    console.log(`edit #id ${id} response`, response.data) 
+
+    res.redirect(`/post/edit/${id}`);
 })
 app.get('/register', async (req, res) => {
     res.render('register', {
@@ -118,7 +141,7 @@ app.get('/login', async (req, res) => {
     })
 })
 app.post('/login', async (req, res) => {
-    
+
 })
 app.get('/logout', async (req, res) => {
     res.send('logout page')
@@ -128,12 +151,11 @@ app.get('/logout', async (req, res) => {
 app.get('/search', async (req, res) => {
 
     if (req.query.keyword) {
-        const searchResult = await urlFetch(`${process.env.API_URL}search?keyword=${req.query.keyword}`);
-        //console.log(searchResult)
+        const searchResult = await axios.get(`${process.env.API_URL}search?keyword=${req.query.keyword}`);
 
         res.render('search', {
             title: '搜尋結果',
-            data: searchResult
+            data: searchResult.data
         })
     } else {
         res.render('search', {
