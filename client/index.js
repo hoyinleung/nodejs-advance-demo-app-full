@@ -16,18 +16,6 @@ app.use(express.urlencoded({ extended: true }))
 app.set('view engine', 'ejs')
 app.set('views', 'views')
 
-app.get('/', async (req, res) => {
-
-    // Get all blog post from mongodb
-    const allPosts = await axios.get(`${process.env.API_URL}posts`);
-
-    res.render('index', {
-        courseName: 'NodeJS進階課程',
-        title: '首頁',
-        blogs: allPosts.data
-    })
-})
-
 //display one article
 app.get('/post/view/:id', async (req, res) => {
 
@@ -164,6 +152,18 @@ app.get('/search', async (req, res) => {
         })
     }
 
+})
+
+app.get('/', async (req, res) => {
+
+    // Get all blog post from mongodb
+    const allPosts = await axios.get(`${process.env.API_URL}posts`);
+
+    res.render('index', {
+        courseName: 'NodeJS進階課程',
+        title: '首頁',
+        blogs: allPosts.data
+    })
 })
 
 app.use((req, res) => {
