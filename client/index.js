@@ -131,10 +131,10 @@ app.post('/login', async (req, res) => {
                 "password": password
             }
         )
-        
+
         console.log(response.data)
 
-        const token = jwt.sign({ username: username}, process.env.JWT_SECRET );
+        const token = jwt.sign({ username: username }, process.env.JWT_SECRET);
         res.cookie('jwt-token', token, { httpOnly: true });
         res.redirect('/');
 
@@ -153,8 +153,8 @@ app.post('/login', async (req, res) => {
 
 })
 app.get('/logout', async (req, res) => {
-    res.send('logout page')
-    //登出要做的事
+    res.clearCookie('jwt-token');
+    res.redirect('/');
 })
 
 app.get('/search', async (req, res) => {
