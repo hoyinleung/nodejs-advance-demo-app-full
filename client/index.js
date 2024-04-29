@@ -1,14 +1,7 @@
 const express = require('express')
 const app = express()
 const axios = require('axios');
-
-const urlFetch = async (url) => {
-    const res = await fetch(url);
-    if (res.ok) {
-        const data = await res.json();
-        return data
-    }
-}
+const jwt = require('jsonwebtoken');
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
@@ -92,7 +85,7 @@ app.post('/post/edit/:id', async (req, res) => {
             content: content,
         }
     )
-    console.log(`edit #id ${id} response`, response.data) 
+    console.log(`edit #id ${id} response`, response.data)
 
     res.redirect(`/post/edit/${id}`);
 })
@@ -104,13 +97,7 @@ app.get('/register', async (req, res) => {
 app.post('/register', async (req, res) => {
     try {
         const { username, password } = req.body;
-
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        /* 
-        //Salt <- 可自行搜尋
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt); */
 
         try {
             const user = await User.create({ username, password: hashedPassword });
@@ -129,6 +116,40 @@ app.get('/login', async (req, res) => {
     })
 })
 app.post('/login', async (req, res) => {
+
+    const { username, password } = req.body;
+    console.log("🚀 ~ app.post ~ username:", username)
+    console.log("🚀 ~ app.post ~ password:", password)
+    console.log(`${process.env.API_URL}authenticate`)
+
+    try {
+        console.log('✅')
+        const response = await axios.post(
+            `${process.env.API_URL}authenticate`,
+            {
+                "username": username,
+                "password": password
+            }
+        )
+        
+        console.log(response.data)
+
+        const token = jwt.sign({ username: username}, process.env.JWT_SECRET );
+        res.cookie('jwt-token', token, { httpOnly: true });
+        res.redirect('/');
+
+        //res.redirect(`/post/view/${response.data.insertedId}`);
+        //res.status(201).json({ message: 'User Created', user });
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            // Handle the 401 error specifically
+            console.error('Authentication error:', error.response.data);
+            res.status(401).json({ message: 'Invalid username or password' }); // Provide a user-friendly message
+        } else {
+            console.log('error', error)
+            res.status(500).json({ message: 'Internal server error' })
+        }
+    }
 
 })
 app.get('/logout', async (req, res) => {

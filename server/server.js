@@ -187,20 +187,21 @@ app.post('/register', async (req, res) => {
 app.post('/authenticate', async (req, res) => {
     try {
         const { username, password } = req.body;
-
         const user = await userOp.findUserByUsername(username);
 
         if (!user) {
+            console.log('❌')
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isPasswordValid = await comparePassword(password, user.password);
-
+        
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
+        
         res.json({ isValidUser: true });
+
 
     } catch (error) {
         console.log(error);
