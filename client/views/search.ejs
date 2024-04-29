@@ -10,7 +10,7 @@
      <% if(data !=='N/A' && data.length >0) { %>
         <h1>共<%=data.length%>個結果</h1>
         <% data.forEach(article => { %>
-            <h3><a href="/post/<%=article._id%>" target="_blank"><%=article.title%></a> (瀏覽次數 : <%=article.views%>)</h3>
+            <h3><a href="/post/view/<%=article._id%>" target="_blank"><%=article.title%></a> (瀏覽次數 : <%=article.views%>)</h3>
         <% }) %>
     <% } %>
 
