@@ -26,3 +26,10 @@ textarea{
 label{
     display: block;
 }
+nav .logout {
+    float: right; 
+}
+.username{
+    font-weight: bold;
+    color: blue;
+}

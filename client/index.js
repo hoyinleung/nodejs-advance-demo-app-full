@@ -2,12 +2,59 @@ const express = require('express')
 const app = express()
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser());
+app.use(session({
+    secret: 'SessionSecret123',
+    resave: false,
+    saveUninitialized: false,
+    //cookie: { maxAge: new Date ( Date.now() + (3600000) ) } 
+  }));
 
 app.set('view engine', 'ejs')
 app.set('views', 'views')
+
+app.use((req, res, next) => {
+
+    const token = req.cookies['jwt-token'];
+
+    if (!token) return res.redirect(`/login`);
+    }
+})
+
+const checkLoginMiddleware = (req, res, next) => {
+
+    const token = req.cookies['jwt-token'];
+
+    if (!token) return res.redirect(`/login`);
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("🚀 ~ checkLoginMiddleware ~ decoded:", decoded)
+        req.username = decoded.username;
+        next();
+    } catch (error) {
+        console.log('🚀')
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+}
+
+app.get('/dashboard', checkLoginMiddleware, async (req, res) => {
+
+    // Get all blog post from mongodb
+    const allPosts = await axios.get(`${process.env.API_URL}posts`);
+
+    res.render('dashboard', {
+        courseName: 'NodeJS進階課程',
+        title: 'Dashboard',
+        blogs: allPosts.data,
+        username: req.username
+    })
+})
 
 //display one article
 app.get('/post/view/:id', async (req, res) => {
@@ -118,9 +165,6 @@ app.get('/login', async (req, res) => {
 app.post('/login', async (req, res) => {
 
     const { username, password } = req.body;
-    console.log("🚀 ~ app.post ~ username:", username)
-    console.log("🚀 ~ app.post ~ password:", password)
-    console.log(`${process.env.API_URL}authenticate`)
 
     try {
         console.log('✅')
@@ -132,20 +176,19 @@ app.post('/login', async (req, res) => {
             }
         )
 
-        console.log(response.data)
-
         const token = jwt.sign({ username: username }, process.env.JWT_SECRET);
+
         res.cookie('jwt-token', token, { httpOnly: true });
         res.redirect('/');
 
-        //res.redirect(`/post/view/${response.data.insertedId}`);
-        //res.status(201).json({ message: 'User Created', user });
     } catch (error) {
         if (error.response && error.response.status === 401) {
             // Handle the 401 error specifically
             console.error('Authentication error:', error.response.data);
-            res.status(401).json({ message: 'Invalid username or password' }); // Provide a user-friendly message
-        } else {
+            res.status(401).json({ message: 'Invalid username or password' });
+        }
+        else 
+        {
             console.log('error', error)
             res.status(500).json({ message: 'Internal server error' })
         }

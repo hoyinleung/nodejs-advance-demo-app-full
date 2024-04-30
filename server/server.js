@@ -5,14 +5,14 @@ const dbOp = require('./model/posts')
 const userOp = require('./model/users')
 const bodyParser = require('body-parser');
 const { genHashPassword, comparePassword } = require('./helpers/password')
-//console.log('🙂' + dbOp.connectToDatabase())
+const jwt = require('jsonwebtoken');
 
 app.use(bodyParser.json());
 
 let corsOptions = {
     origin: 'http://localhost:3000',
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    methods: ['GET', 'POST','OPTIONS', 'PUT', 'DELETE','PATCH']
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PATCH']
     //allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header'], 
     //credentials: true 
 }
@@ -81,20 +81,6 @@ app.get('/search', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
-
-/* const pageNumber = 1; // The current page number
-const pageSize = 10; // The number of documents per page
-
-const query = {}; // Your query criteria
-
-const documents = await collection
-  .find(query)
-  .skip((pageNumber - 1) * pageSize)
-  .limit(pageSize)
-  .toArray();
-
-console.log(documents); */
 
 // Create a new post
 app.post('/posts', async (req, res) => {
@@ -171,7 +157,6 @@ app.post('/register', async (req, res) => {
         "username": req.body.username,
         "password": await genHashPassword(req.body.password)
     }
-    console.log("🚀 ~ app.post ~ newUser:", newUser)
 
     try {
         const dbRes = await userOp.createDocument(newUser);
@@ -190,16 +175,18 @@ app.post('/authenticate', async (req, res) => {
         const user = await userOp.findUserByUsername(username);
 
         if (!user) {
-            console.log('❌')
+            console.log('❌user')
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isPasswordValid = await comparePassword(password, user.password);
-        
+        console.log(password+'🙏'+user.password) 
+
         if (!isPasswordValid) {
+            console.log('❌password')
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        
+
         res.json({ isValidUser: true });
 
 
