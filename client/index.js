@@ -3,36 +3,25 @@ const app = express()
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser());
-app.use(session({
-    secret: 'SessionSecret123',
-    resave: false,
-    saveUninitialized: false,
-    //cookie: { maxAge: new Date ( Date.now() + (3600000) ) } 
-  }));
 
 app.set('view engine', 'ejs')
 app.set('views', 'views')
-
+//set display Username
 app.use((req, res, next) => {
-
-    const token = req.cookies['jwt-token'];
-
-    if (!token) return res.redirect(`/login`);
-    }
+    req.username = req.cookies['username']||null
+    next()
 })
 
 const checkLoginMiddleware = (req, res, next) => {
+    
+    const jwtToken = req.cookies['jwt-token'];
+    if (!jwtToken) return res.redirect(`/login`);
 
-    const token = req.cookies['jwt-token'];
-
-    if (!token) return res.redirect(`/login`);
-
-    try {
+    /* try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log("🚀 ~ checkLoginMiddleware ~ decoded:", decoded)
         req.username = decoded.username;
@@ -40,7 +29,23 @@ const checkLoginMiddleware = (req, res, next) => {
     } catch (error) {
         console.log('🚀')
         res.status(401).json({ message: 'Unauthorized' });
-    }
+    } */
+
+    try {
+        const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+        console.log("🚀 ~ checkLoginMiddleware ~ decoded:", decoded)
+        req.username = decoded.username;
+        next();
+      } catch (err) {
+        if (err.name === 'JsonWebTokenError' && err.message.includes('expired')) {
+          console.error('JWT token已過期! 需要用戶再登入');
+          res.redirect('/logout');
+        } else {
+          console.error('認證不到合法JWT token', err.message);
+          // Handle other JWT verification errors
+          res.redirect('/logout');
+        }
+      }
 }
 
 app.get('/dashboard', checkLoginMiddleware, async (req, res) => {
@@ -52,7 +57,7 @@ app.get('/dashboard', checkLoginMiddleware, async (req, res) => {
         courseName: 'NodeJS進階課程',
         title: 'Dashboard',
         blogs: allPosts.data,
-        username: req.username
+        displayUsername:req.username
     })
 })
 
@@ -63,13 +68,15 @@ app.get('/post/view/:id', async (req, res) => {
 
     res.render('postDetail', {
         title: postDetail.data.title,
-        post: postDetail.data
+        post: postDetail.data,
+        displayUsername:req.username
     })
 })
 
 app.get('/post/create', async (req, res) => {
     res.render('create', {
-        title: '加入文章'
+        title: '加入文章',
+        displayUsername:req.username
     })
 })
 
@@ -109,7 +116,8 @@ app.get('/post/edit/:id', async (req, res) => {
 
     res.render('edit', {
         title: '更改文章 #',
-        post: postData.data
+        post: postData.data,
+        displayUsername:req.username
     })
 })
 app.post('/post/edit/:id', async (req, res) => {
@@ -138,7 +146,8 @@ app.post('/post/edit/:id', async (req, res) => {
 })
 app.get('/register', async (req, res) => {
     res.render('register', {
-        title: '註冊'
+        title: '註冊',
+        displayUsername:req.username
     })
 })
 app.post('/register', async (req, res) => {
@@ -159,7 +168,8 @@ app.post('/register', async (req, res) => {
 });
 app.get('/login', async (req, res) => {
     res.render('login', {
-        title: '登入'
+        title: '登入',
+        displayUsername:req.username
     })
 })
 app.post('/login', async (req, res) => {
@@ -176,9 +186,23 @@ app.post('/login', async (req, res) => {
             }
         )
 
-        const token = jwt.sign({ username: username }, process.env.JWT_SECRET);
+        const token = jwt.sign(
+            { username: username },
+            process.env.JWT_SECRET,
+            { expiresIn: 60 } //秒
+        );
 
-        res.cookie('jwt-token', token, { httpOnly: true });
+        res.cookie('jwt-token', token,
+        {
+            httpOnly: true, 
+            //secure: true,
+        }
+        );
+        res.cookie('username', username,
+        {
+            httpOnly: true, 
+            //secure: true,
+        })
         res.redirect('/');
 
     } catch (error) {
@@ -187,8 +211,7 @@ app.post('/login', async (req, res) => {
             console.error('Authentication error:', error.response.data);
             res.status(401).json({ message: 'Invalid username or password' });
         }
-        else 
-        {
+        else {
             console.log('error', error)
             res.status(500).json({ message: 'Internal server error' })
         }
@@ -197,7 +220,9 @@ app.post('/login', async (req, res) => {
 })
 app.get('/logout', async (req, res) => {
     res.clearCookie('jwt-token');
-    res.redirect('/');
+    res.clearCookie('username');
+    //req.session.destroy()
+    res.redirect('/login');
 })
 
 app.get('/search', async (req, res) => {
@@ -207,12 +232,14 @@ app.get('/search', async (req, res) => {
 
         res.render('search', {
             title: '搜尋結果',
-            data: searchResult.data
+            data: searchResult.data,
+            displayUsername:req.username
         })
     } else {
         res.render('search', {
             title: '搜尋結果',
-            data: 'N/A'
+            data: 'N/A',
+            displayUsername:req.username
         })
     }
 
@@ -226,7 +253,8 @@ app.get('/', async (req, res) => {
     res.render('index', {
         courseName: 'NodeJS進階課程',
         title: '首頁',
-        blogs: allPosts.data
+        blogs: allPosts.data,
+        displayUsername:req.username
     })
 })
 

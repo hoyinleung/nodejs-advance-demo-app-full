@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%=title%></title>
+    <title>
+        <%=title%>
+    </title>
     <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
     <nav>
-        <a href="/">文章列表</a> | 
+        <a href="/">文章列表</a> |
         <a href="/search">搜尋文章</a>
-        
 
-        <span class="logout">你好訪客 | <a href="/login">登入</a>
+        <% if (displayUsername !==null) { %>
+            <span id="username">
+                <span class="logout">
+                登入為<span class="username"><%=displayUsername%></span> | 
+                <a href="/dashboard">管理文章</a> | 
+                <a href="/logout">登出</a>
             </span>
+        <% } else { %>
+            <span class="logout">你好訪客 | <a href="/login">登入</a>
+            </span>
+        <% } %>
     </nav>
