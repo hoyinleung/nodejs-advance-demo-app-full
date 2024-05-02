@@ -12,40 +12,30 @@ app.set('view engine', 'ejs')
 app.set('views', 'views')
 //set display Username
 app.use((req, res, next) => {
-    req.username = req.cookies['username']||null
+    req.username = req.cookies['username'] || null
     next()
 })
 
 const checkLoginMiddleware = (req, res, next) => {
-    
+
     const jwtToken = req.cookies['jwt-token'];
     if (!jwtToken) return res.redirect(`/login`);
-
-    /* try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("🚀 ~ checkLoginMiddleware ~ decoded:", decoded)
-        req.username = decoded.username;
-        next();
-    } catch (error) {
-        console.log('🚀')
-        res.status(401).json({ message: 'Unauthorized' });
-    } */
 
     try {
         const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
         console.log("🚀 ~ checkLoginMiddleware ~ decoded:", decoded)
         req.username = decoded.username;
         next();
-      } catch (err) {
+    } catch (err) {
         if (err.name === 'JsonWebTokenError' && err.message.includes('expired')) {
-          console.error('JWT token已過期! 需要用戶再登入');
-          res.redirect('/logout');
+            console.error('JWT token已過期! 需要用戶再登入');
+            res.redirect('/logout');
         } else {
-          console.error('認證不到合法JWT token', err.message);
-          // Handle other JWT verification errors
-          res.redirect('/logout');
+            console.error('認證不到合法JWT token', err.message);
+            // Handle other JWT verification errors
+            res.redirect('/logout');
         }
-      }
+    }
 }
 
 app.get('/dashboard', checkLoginMiddleware, async (req, res) => {
@@ -57,7 +47,7 @@ app.get('/dashboard', checkLoginMiddleware, async (req, res) => {
         courseName: 'NodeJS進階課程',
         title: 'Dashboard',
         blogs: allPosts.data,
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 
@@ -69,14 +59,14 @@ app.get('/post/view/:id', async (req, res) => {
     res.render('postDetail', {
         title: postDetail.data.title,
         post: postDetail.data,
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 
 app.get('/post/create', async (req, res) => {
     res.render('create', {
         title: '加入文章',
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 
@@ -117,7 +107,7 @@ app.get('/post/edit/:id', async (req, res) => {
     res.render('edit', {
         title: '更改文章 #',
         post: postData.data,
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 app.post('/post/edit/:id', async (req, res) => {
@@ -147,7 +137,7 @@ app.post('/post/edit/:id', async (req, res) => {
 app.get('/register', async (req, res) => {
     res.render('register', {
         title: '註冊',
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 app.post('/register', async (req, res) => {
@@ -169,7 +159,7 @@ app.post('/register', async (req, res) => {
 app.get('/login', async (req, res) => {
     res.render('login', {
         title: '登入',
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 app.post('/login', async (req, res) => {
@@ -193,16 +183,16 @@ app.post('/login', async (req, res) => {
         );
 
         res.cookie('jwt-token', token,
-        {
-            httpOnly: true, 
-            //secure: true,
-        }
+            {
+                httpOnly: true,
+                //secure: true,
+            }
         );
         res.cookie('username', username,
-        {
-            httpOnly: true, 
-            //secure: true,
-        })
+            {
+                httpOnly: true,
+                //secure: true,
+            })
         res.redirect('/');
 
     } catch (error) {
@@ -233,13 +223,13 @@ app.get('/search', async (req, res) => {
         res.render('search', {
             title: '搜尋結果',
             data: searchResult.data,
-            displayUsername:req.username
+            displayUsername: req.username
         })
     } else {
         res.render('search', {
             title: '搜尋結果',
             data: 'N/A',
-            displayUsername:req.username
+            displayUsername: req.username
         })
     }
 
@@ -254,7 +244,7 @@ app.get('/', async (req, res) => {
         courseName: 'NodeJS進階課程',
         title: '首頁',
         blogs: allPosts.data,
-        displayUsername:req.username
+        displayUsername: req.username
     })
 })
 
