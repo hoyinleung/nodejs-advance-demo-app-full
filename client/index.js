@@ -134,6 +134,21 @@ app.post('/post/edit/:id',checkLoginMiddleware, async (req, res) => {
 
     res.redirect(`/post/edit/${id}`);
 })
+app.get('/post/delete/:id',checkLoginMiddleware, async (req, res) => {
+
+    // Check if id exists
+    const id = req.params.id
+    if (!id) {
+        // Handle the case where id is missing (e.g., send a 400 Bad Request error)
+        return res.status(400).send('Error: ID parameter is required.');
+    }
+
+    //依ID讀取特定文章資料
+    const response = await axios.delete(`${process.env.API_URL}posts/${id}`)
+    console.log(`delete #id ${id} response`, response.data)
+
+    res.redirect(`/dashboard`);
+})
 app.get('/register', async (req, res) => {
     res.render('register', {
         title: '註冊',
