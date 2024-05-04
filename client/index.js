@@ -10,6 +10,7 @@ app.use(cookieParser());
 
 app.set('view engine', 'ejs')
 app.set('views', 'views')
+
 //set display Username
 app.use((req, res, next) => {
     req.username = req.cookies['username'] || null
@@ -32,7 +33,6 @@ const checkLoginMiddleware = (req, res, next) => {
             res.redirect('/logout');
         } else {
             console.error('認證不到合法JWT token', err.message);
-            // Handle other JWT verification errors
             res.redirect('/logout');
         }
     }
@@ -185,13 +185,13 @@ app.post('/login', async (req, res) => {
         res.cookie('jwt-token', token,
             {
                 httpOnly: true,
-                //secure: true,
+                //secure: true,  //有http連線可以開啟
             }
         );
         res.cookie('username', username,
             {
                 httpOnly: true,
-                //secure: true,
+                //secure: true, //有http連線可以開啟
             })
         res.redirect('/');
 
@@ -211,7 +211,6 @@ app.post('/login', async (req, res) => {
 app.get('/logout', async (req, res) => {
     res.clearCookie('jwt-token');
     res.clearCookie('username');
-    //req.session.destroy()
     res.redirect('/login');
 })
 
@@ -237,7 +236,7 @@ app.get('/search', async (req, res) => {
 
 app.get('/', async (req, res) => {
 
-    // Get all blog post from mongodb
+    //拿所有 blog post from mongodb
     const allPosts = await axios.get(`${process.env.API_URL}posts`);
 
     res.render('index', {
@@ -249,7 +248,11 @@ app.get('/', async (req, res) => {
 })
 
 app.use((req, res) => {
-    res.status(404).render('404', { title: '找不到' })
+    res.status(404).render('404', 
+    { 
+        title: '找不到',
+        displayUsername: req.username
+    })
 })
 
 app.listen(3000, () => {
