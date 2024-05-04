@@ -5,7 +5,6 @@ const dbOp = require('./model/posts')
 const userOp = require('./model/users')
 const bodyParser = require('body-parser');
 const { genHashPassword, comparePassword } = require('./helpers/password')
-const jwt = require('jsonwebtoken');
 
 app.use(bodyParser.json());
 
