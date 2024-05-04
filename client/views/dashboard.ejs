@@ -8,12 +8,22 @@
         <% blogs.forEach(article => { %>
             <div class="postTable">
                 <span><a href="/post/edit/<%=article._id%>">✏️更改</a></span> | 
-                <span><a href="/post/delete/<%=article._id%>">❌刪除</a></span> | 
+                <span 
+                    data-open-modal data-id="<%=article._id%>"
+                    data-title="<%=article.title%>"
+                    style="cursor: pointer;">
+                    ❌刪除
+                </span> | 
                 <span><a href="/post/view/<%=article._id%>" target="_blank"><%=article.title%></a>
                 </span> (瀏覽數 <%=article.views%>)
             </div>
         <% }) %>
     <% } %>
+    <dialog>
+        <div style="margin-bottom: 10px;" id="deleteConfirmQ"></div>
+        <a>確定</a>
+        <button data-close-modal>取消</button>
+      </dialog>
 
     <% if(!blogs.length) { %>
         <h2>資料庫內暫時沒有文章</h2>
@@ -21,5 +31,28 @@
 <br/>
     <a href="/post/create"><button>新增文章➕</button></a>
 
+    <script>
+        const dialog = document.querySelector("dialog")
+        const dialogLink = document.querySelector("dialog>a")
+        const closeDialogBtn = document.querySelector("[data-close-modal]")
+        const openDialogBtn = document.querySelectorAll("[data-open-modal]")
+        const deleteConfirmQ = document.querySelector("#deleteConfirmQ")
+
+        openDialogBtn.forEach(btn=>{
+
+            btn.addEventListener('click',()=>{
+                console.log(dialogLink.textContent)
+                deleteConfirmQ.innerHTML=`確定要刪除<strong>${btn.dataset.title}</strong>嗎?`
+                dialogLink.href=`/post/delete/${btn.dataset.id}`
+                dialog.showModal()
+            })
+
+        })
+
+        closeDialogBtn.addEventListener('click',()=>{
+            dialog.close()
+        })
+        
+    </script>
     
 <%- include('footer.ejs') %> 

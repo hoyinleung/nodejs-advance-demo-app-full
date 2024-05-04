@@ -33,3 +33,10 @@ nav .logout {
     font-weight: bold;
     color: blue;
 }
+dialog > a{
+    border: black 2px;
+    padding: 4px 10px;
+    background-color: hotpink;
+    color: black;
+    margin-top: 10px;
+}

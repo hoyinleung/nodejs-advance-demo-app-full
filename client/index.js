@@ -63,14 +63,14 @@ app.get('/post/view/:id', async (req, res) => {
     })
 })
 
-app.get('/post/create', async (req, res) => {
+app.get('/post/create',checkLoginMiddleware, async (req, res) => {
     res.render('create', {
         title: '加入文章',
         displayUsername: req.username
     })
 })
 
-app.post('/post/create', async (req, res) => {
+app.post('/post/create',checkLoginMiddleware, async (req, res) => {
 
     const { title, content } = req.body;
 
@@ -91,7 +91,7 @@ app.post('/post/create', async (req, res) => {
     }
 })
 
-app.get('/post/edit/:id', async (req, res) => {
+app.get('/post/edit/:id',checkLoginMiddleware, async (req, res) => {
 
     // Check if id exists
     const id = req.params.id
@@ -110,7 +110,7 @@ app.get('/post/edit/:id', async (req, res) => {
         displayUsername: req.username
     })
 })
-app.post('/post/edit/:id', async (req, res) => {
+app.post('/post/edit/:id',checkLoginMiddleware, async (req, res) => {
 
     // Check if id exists
     const id = req.params.id
@@ -167,7 +167,6 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        console.log('✅')
         const response = await axios.post(
             `${process.env.API_URL}authenticate`,
             {
@@ -177,31 +176,32 @@ app.post('/login', async (req, res) => {
         )
 
         const token = jwt.sign(
-            { username: username },
+            { username: username }, //用戶權限...等等
             process.env.JWT_SECRET,
-            { expiresIn: 60 } //秒
+            { expiresIn: 1200 } //過期 - 秒
         );
 
         res.cookie('jwt-token', token,
             {
                 httpOnly: true,
-                //secure: true,  //有http連線可以開啟
+                //secure: true,  //有https連線可以開啟
             }
         );
         res.cookie('username', username,
             {
                 httpOnly: true,
-                //secure: true, //有http連線可以開啟
+                //secure: true, //有https連線可以開啟
             })
         res.redirect('/');
 
     } catch (error) {
-        if (error.response && error.response.status === 401) {
-            // Handle the 401 error specifically
+        if (error.response && error.response.status === 401) 
+        {
             console.error('Authentication error:', error.response.data);
             res.status(401).json({ message: 'Invalid username or password' });
         }
-        else {
+        else
+        {
             console.log('error', error)
             res.status(500).json({ message: 'Internal server error' })
         }
